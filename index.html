@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conviértete en Profesor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .form-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        .form-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-container input,
+        .form-container textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .form-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .form-container button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>Conviértete en Profesor</h2>
+    <form id="teacherForm">
+        <label for="fullName">Nombre Completo:</label>
+        <input type="text" id="fullName" name="fullName" required>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="idNumber">Número de Identificación:</label>
+        <input type="text" id="idNumber" name="idNumber" required>
+
+        <label for="phoneNumber">Número de Teléfono:</label>
+        <input type="text" id="phoneNumber" name="phoneNumber" required>
+
+        <label for="message">Mensaje:</label>
+        <textarea id="message" name="message" required></textarea>
+
+        <label for="cv">CV (adjuntar archivo):</label>
+        <input type="file" id="cv" name="cv" accept=".pdf,.doc,.docx" required>
+
+        <button type="submit">Enviar solicitud</button>
+    </form>
+    <div id="responseMessage" style="margin-top: 20px;"></div>
+</div>
+
+<script>
+    document.getElementById('teacherForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+
+        const formData = new FormData(this);
+
+        try {
+            const response = await fetch('http://localhost:3000/upload-cv', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error('Error en la solicitud');
+            }
+
+            const result = await response.text();
+            document.getElementById('responseMessage').innerText = 
+                'Gracias por tu interés. Hemos recibido tu solicitud.';
+        } catch (error) {
+            document.getElementById('responseMessage').innerText = 
+                'Hubo un error al enviar la solicitud. Por favor, inténtalo de nuevo más tarde.';
+        }
+    });
+</script>
+
+</body>
+</html>
