@@ -7,31 +7,25 @@ import path from 'path';
 import cors from 'cors';
 import fs from 'fs';
 
-// Cargar variables de entorno
 dotenv.config();
 
-// Cargar y parsear el archivo JSON de credenciales de Firebase
 const serviceAccount = JSON.parse(fs.readFileSync('./presys-b9912-firebase-adminsdk-48uak-cce984f2da.json', 'utf8'));
 
-// Inicializar Firebase Admin
 admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    storageBucket: 'presys-b9912.appspot.com', // Nombre del bucket directamente
+  credential: admin.credential.cert(serviceAccount),
+  storageBucket: 'presys-b9912.appspot.com',
 });
 
-// Inicializar el almacenamiento
 const bucket = admin.storage().bucket();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware para manejar CORS
-app.use(cors()); // Permitir CORS para todas las rutas
+app.use(cors());
+app.use(express.json());
 
-// Middleware para manejar archivos
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Configurar el transporte de Nodemailer
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -40,8 +34,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Ruta para subir el CV y enviar el enlace
-app.post('/upload-cv', upload.single('cv'), async (req, res) => {
+app.post('/teacher', upload.single('cv'), async (req, res) => {
   const file = req.file;
 
   if (!file) {
@@ -52,29 +45,66 @@ app.post('/upload-cv', upload.single('cv'), async (req, res) => {
   const fileRef = bucket.file(filePath);
 
   try {
-    // Subir archivo a Firebase Storage
     await fileRef.save(file.buffer);
 
-    // Obtener el enlace público del archivo
     const [url] = await fileRef.getSignedUrl({
       action: 'read',
-      expires: '03-09-2500', // Establecer una fecha de expiración lejana
+      expires: '03-09-2500',
     });
 
-    // Enviar el enlace por correo electrónico con formato HTML
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: process.env.EMAIL_USER, // Siempre enviar al correo definido en .env
+      to: process.env.DEFAULT_TO_EMAIL,
       subject: 'Nuevo CV recibido',
       html: `
-        <h1>Nuevo CV recibido</h1>
-        <p><strong>Email del usuario:</strong> ${req.body.email}</p>
-        <p><strong>Nombre completo:</strong> ${req.body.fullName}</p>
-        <p><strong>Número de identificación:</strong> ${req.body.idNumber}</p>
-        <p><strong>Número de teléfono:</strong> ${req.body.phoneNumber}</p>
-        <p><strong>Mensaje:</strong> ${req.body.message}</p>
-        <p>Aquí está el enlace para descargar el CV:</p>
-        <a href="${url}">Descargar CV</a>
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Nuevo CV Recibido</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              line-height: 1.6;
+              color: #333;
+              max-width: 600px;
+              margin: 0 auto;
+              padding: 20px;
+            }
+            h1 {
+              color: #2c3e50;
+              border-bottom: 2px solid #3498db;
+              padding-bottom: 10px;
+            }
+            strong {
+              color: #2980b9;
+            }
+            .button {
+              display: inline-block;
+              padding: 10px 20px;
+              background-color: #3498db;
+              color: #ffffff;
+              text-decoration: none;
+              border-radius: 5px;
+              margin-top: 20px;
+            }
+            .button:hover {
+              background-color: #2980b9;
+            }
+          </style>
+        </head>
+        <body>
+          <h1>Nuevo CV recibido</h1>
+          <p><strong>Email del usuario:</strong> ${req.body.email}</p>
+          <p><strong>Nombre completo:</strong> ${req.body.fullName}</p>
+          <p><strong>Número de identificación:</strong> ${req.body.idNumber}</p>
+          <p><strong>Número de teléfono:</strong> ${req.body.phoneNumber}</p>
+          <p><strong>Mensaje:</strong> ${req.body.message}</p>
+          <p>Haga clic en el botón para descargar el CV:</p>
+          <a href="${url}" class="button">Descargar CV</a>
+        </body>
+        </html>
       `,
     };
 
@@ -89,7 +119,80 @@ app.post('/upload-cv', upload.single('cv'), async (req, res) => {
   }
 });
 
-// Iniciar el servidor
+app.post('/contact', async (req, res) => {
+  const { email, fullName, phoneNumber, message } = req.body;
+
+  try {
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: process.env.DEFAULT_TO_EMAIL,
+      subject: `Nuevo mensaje de contacto de ${fullName}`,
+      html: `
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Nuevo Mensaje de Contacto</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              line-height: 1.6;
+              color: #333;
+              max-width: 600px;
+              margin: 0 auto;
+              padding: 20px;
+              background-color: #f4f4f4;
+            }
+            .container {
+              background-color: #ffffff;
+              border-radius: 5px;
+              padding: 20px;
+              box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            }
+            h1 {
+              color: #2c3e50;
+              border-bottom: 2px solid #3498db;
+              padding-bottom: 10px;
+            }
+            strong {
+              color: #2980b9;
+            }
+            .message {
+              background-color: #ecf0f1;
+              border-left: 4px solid #3498db;
+              padding: 10px;
+              margin-top: 20px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>Nuevo Mensaje de Contacto</h1>
+            <p><strong>Nombre completo:</strong> ${fullName}</p>
+            <p><strong>Correo electrónico:</strong> ${email}</p>
+            <p><strong>Número de teléfono:</strong> ${phoneNumber}</p>
+            <div class="message">
+              <strong>Mensaje:</strong>
+              <p>${message}</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return res.status(500).send('Error al enviar el correo: ' + error.toString());
+      }
+      res.status(200).send('Correo enviado: ' + info.response);
+    });
+  } catch (error) {
+    res.status(500).send('Error al enviar el correo: ' + error.message);
+  }
+});
+
 app.listen(port, () => {
   console.log(`Servidor escuchando en http://localhost:${port}`);
 });
