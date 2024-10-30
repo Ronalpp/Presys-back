@@ -1,145 +1,104 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Prueba de Endpoints</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-    .container {
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Propuesta de trabajo</title>
+  </head>
+  <body
+    style="
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
       max-width: 600px;
       margin: 0 auto;
-    }
-    form {
-      margin-bottom: 40px;
       padding: 20px;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-      background-color: #f9f9f9;
-    }
-    label {
-      font-weight: bold;
-      display: block;
-      margin-bottom: 5px;
-    }
-    input, textarea {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    button {
-      padding: 10px 15px;
-      background-color: #28a745;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    button:disabled {
-      background-color: #ccc;
-    }
-  </style>
-</head>
-<body>
+      background-color: #f0f4f8;
+    "
+  >
+    <table
+      cellpadding="0"
+      cellspacing="0"
+      border="0"
+      width="100%"
+      style="
+        background-color: #ffffff;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      "
+    >
+      <tr>
+        <td style="padding: 0">
+          <table cellpadding="0" cellspacing="0" border="0" width="100%">
+            <tr>
+              <td
+                align="center"
+                style="
+                  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+                  padding: 30px 20px;
+                "
+              >
+                <img
+                  src="https://presys.vercel.app/assets/presys-CNwjRvPu.png"
+                  alt="Logo de la empresa"
+                  style="
+                    max-width: 80px;
+                    height: auto;
+                    border-radius: 50%;
+                    border: 3px solid #ffffff;
+                  "
+                />
+              </td>
+            </tr>
+          </table>
 
-<div class="container">
-  <!-- Formulario para subir CV -->
-  <h2>Subir CV</h2>
-  <form id="uploadCVForm" enctype="multipart/form-data">
-    <label for="email">Correo Electrónico:</label>
-    <input type="email" id="email" name="email" required>
+          <table cellpadding="0" cellspacing="0" border="0" width="100%">
+            <tr>
+              <td style="padding: 30px">
+                <h1
+                  style="
+                    color: #2c3e50;
+                    border-bottom: 2px solid #3498db;
+                    padding-bottom: 10px;
+                    font-size: 28px;
+                    margin-bottom: 20px;
+                    text-align: center;
+                  "
+                >
+                  ¡Contacto!
+                </h1>
 
-    <label for="fullName">Nombre Completo:</label>
-    <input type="text" id="fullName" name="fullName" required>
-
-    <label for="idNumber">Número de Identificación:</label>
-    <input type="text" id="idNumber" name="idNumber" required>
-
-    <label for="phoneNumber">Número de Teléfono:</label>
-    <input type="tel" id="phoneNumber" name="phoneNumber" required>
-
-    <label for="message">Mensaje:</label>
-    <textarea id="message" name="message" rows="4" required></textarea>
-
-    <label for="cv">Subir CV (archivo PDF):</label>
-    <input type="file" id="cv" name="cv" accept=".pdf" required>
-
-    <button type="submit">Enviar CV</button>
-  </form>
-
-  <!-- Formulario de contacto -->
-  <h2>Formulario de Contacto</h2>
-  <form id="contactForm">
-    <label for="contactEmail">Correo Electrónico:</label>
-    <input type="email" id="contactEmail" name="email" required>
-
-    <label for="contactFullName">Nombre Completo:</label>
-    <input type="text" id="contactFullName" name="fullName" required>
-
-    <label for="contactPhoneNumber">Número de Teléfono:</label>
-    <input type="tel" id="contactPhoneNumber" name="phoneNumber" required>
-
-    <label for="contactMessage">Mensaje:</label>
-    <textarea id="contactMessage" name="message" rows="4" required></textarea>
-
-    <button type="submit">Enviar Mensaje</button>
-  </form>
-</div>
-
-<script>
-  // Manejo del formulario de subir CV
-  document.getElementById('uploadCVForm').addEventListener('submit', async function(event) {
-    event.preventDefault();
-
-    const formData = new FormData(this);
-
-    try {
-      const response = await fetch('http://localhost:3000/teacher', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const result = await response.text();
-      alert(result);
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Error al enviar el formulario de CV.');
-    }
-  });
-
-  // Manejo del formulario de contacto
-  document.getElementById('contactForm').addEventListener('submit', async function(event) {
-    event.preventDefault();
-
-    const formData = {
-      email: document.getElementById('contactEmail').value,
-      fullName: document.getElementById('contactFullName').value,
-      phoneNumber: document.getElementById('contactPhoneNumber').value,
-      message: document.getElementById('contactMessage').value,
-    };
-
-    try {
-      const response = await fetch('http://localhost:3000/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const result = await response.text();
-      alert(result);
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Error al enviar el formulario de contacto.');
-    }
-  });
-</script>
-
-</body>
+                <div
+                  style="
+                    background-color: #f8f9fa;
+                    border-radius: 15px;
+                    padding: 20px;
+                    margin-bottom: 20px;
+                  "
+                >
+                  <p style="margin-bottom: 10px">
+                    <strong style="color: #2980b9"> Email:</strong>
+                    ${email}
+                  </p>
+                  <p style="margin-bottom: 10px">
+                    <strong style="color: #2980b9"> Nombre:</strong>
+                    ${fullName}
+                  </p>
+                  <p style="margin-bottom: 10px">
+                    <strong style="color: #2980b9"> Teléfono:</strong>
+                    ${phoneNumber}
+                  </p>
+                  <p style="margin-bottom: 0">
+                    <strong style="color: #2980b9"> Mensaje:</strong>
+                    ${message}
+                  </p>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
 </html>
